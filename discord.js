@@ -4,7 +4,7 @@
  */
 
 window.Discord = {
-	token: "MjE3NjQxNzM4NzgzNjg2NjU3.CtmaGA.u-AQfWpgcsY82S_JJcvMwgUu81M",
+	token: prompt('Please enter a token.'),
 	conn: undefined,
 	seq: 0,
 	heartbeat: undefined,
