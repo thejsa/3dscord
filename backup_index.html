@@ -1,0 +1,117 @@
+<!-- (c) 2016, Joshua Kelly -->
+<html>
+<head>
+	<title>Discordant</title>
+	<script src="https://code.jquery.com/jquery-1.8.3.min.js" type="text/javascript"></script>
+	<script type="text/javascript">
+		/*
+		 * Discordant
+		 * (c) Joshua Kelly, 2016.
+		 * 
+		 * Todos:
+		 * * Implement heartbeat
+		 */
+		
+		window.Discordant = {
+			token: prompt("Token please", "MjE3NjQxNzM4NzgzNjg2NjU3.CtmaGA.u-AQfWpgcsY82S_JJcvMwgUu81M"),
+			conn: undefined
+		};
+		
+		function discordLogin(email, password) {
+			// Todo: POST {email:"email", password:"password"} to /api/auth/login and get token
+		}
+		
+//		var window.Discordant.conn;
+		
+		if (window.MozWebSocket) {
+			window.WebSocket = window.MozWebSocket;
+		}
+		
+		function discordIdentify() {
+			initData = {
+				"op": 2,
+				"d": {
+					"token": window.Discordant.token,
+					"v": 3,
+					"compress": false,
+					"properties": {
+						"$os": "Discordant",
+						"$browser": "Discordant",
+						"$device": "Discordant",
+						"$referrer": "Discordant",
+						"$referring_domain": "Discordant"
+					}
+				}
+			};
+			window.Discordant.conn.send(JSON.stringify(initData));
+		}
+		
+		function appendChat(data) {
+			chat = document.getElementById("messages");
+			message = data.d.content;
+			
+			element = document.createElement("p");
+			element.innerHTML = message;
+			chat.appendChild(element);
+		}
+		
+		function appendChatRaw(element) {
+			chat = document.getElementById("messages");
+			chat.appendChild(element);
+		}
+		
+		function appendChatInfo(message) {
+			msgEl = document.createElement("p");
+			msgEl.innerHTML = message;
+			appendChatRaw(msgEl);
+		}
+		
+		function openConnection() {
+			if(window.Discordant.conn === undefined || window.Discordant.conn.readyState === undefined || window.Discordant.conn.readyState > 1) {
+				window.Discordant.conn = new WebSocket("wss://gateway.discord.gg/?encoding=json&v=5");
+				window.Discordant.conn.onopen = function() {
+					console.log("Socket open!");
+		//			document.write("Socket open!");
+					appendChatInfo("[DISCORDANT] Socket opened.");
+					discordIdentify();
+				};
+				
+				window.Discordant.conn.onmessage = function(event) {
+//					console.log(event.data);
+		//			document.write(JSON.stringify(event.data));
+					message = JSON.parse(event.data);
+					console.log(message);
+					
+					if(message.t == "READY") {
+						discordReady(message);
+					} else if(message.t == "MESSAGE_CREATE") {
+						appendChat(message);
+					}
+				};
+				
+				window.Discordant.conn.onclose = function(event) {
+					console.log("Socket closed.");
+		//			document.write("Socket closed.");
+					appendChatInfo("[DISCORDANT] Socket closed.");
+				};
+			}
+		}
+		
+		if(window.WebSocket === undefined) {
+			alert("WebSockets are not available in your browser. Please use a more modern browser.");
+		} else {
+			openConnection();
+		}
+	</script>
+	
+	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0">
+	<style type="text/css">
+		body { background-color: #36393e; color: #fff; }
+	</style>
+</head>
+<body>
+	<div id="messages">
+		Discordant
+	</div>
+</body>
+</html>

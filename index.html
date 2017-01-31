@@ -1,0 +1,167 @@
+<!-- (c) 2016, Joshua Kelly -->
+<!-- Still todo:
+	* Posting
+	* Display edits -->
+<!--	Awesome FOSS I've used for this project:
+	Twitter Twemoji		https://github.com/twitter/twemoji			Emoji JS lib + images	MIT License (JS); CC-BY 4.0 (images)
+	Handlebars		http://handlebarsjs.com/				Templating engine	MIT License
+	micromarkdown.js	https://simonwaldherr.github.io/micromarkdown.js/	Markdown parser		MIT License -->
+<html>
+<head>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js" integrity="sha256-rMOSOM5HDzVEMoVZTv2189+RKSTSgY5ZKfTfap7q2zE=" crossorigin="anonymous"></script>
+	<script type="text/javascript" src="https://simonwaldherr.github.io/micromarkdown.js/dist/micromarkdown.min.js"></script>
+	<script src="https://twemoji.maxcdn.com/2/twemoji.min.js?2.2"></script>
+	<script src="discord.js" type="text/javascript"></script>
+	<title>Discord N3DS</title>
+	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0">
+	<style type="text/css">
+		body {
+			background-color: #36393e;
+			color: #fff;
+			font-family: Whitney, sans-serif;
+			}
+		@font-face {
+			font-family: Whitney;
+			font-style: light;
+			font-weight: 300;
+			src: url(https://discordapp.com/assets/16801bfdf51ed88e69bc90626a3ea436.woff) format('woff')
+			}
+		@font-face {
+			font-family: Whitney;
+			font-style: normal;
+			font-weight: 500;
+			src: url(https://discordapp.com/assets/d153359b5d87601d2b9c708b7ae2db02.woff) format('woff')
+			}
+		@font-face {
+			font-family: Whitney;
+			font-style: medium;
+			font-weight: 600;
+			src: url(https://discordapp.com/assets/a934ab008c7f6a2274ec441f6be0696a.woff) format('woff')
+			}
+		@font-face {
+			font-family: Whitney;
+			font-style: semibold;
+			font-weight: 650;
+			src: url(https://discordapp.com/assets/877ef48bf9fcfee590f0ba64de101b59.woff) format('woff')
+			}
+		@font-face {
+			font-family: Whitney;
+			font-style: bold;
+			font-weight: 700;
+			src: url(https://discordapp.com/assets/2e004dd717cdc58b9ccb361d286ebbce.woff) format('woff')
+			}
+		@font-face {
+			font-family: SourceCodePro;
+			font-style: normal;
+			font-weight: 500;
+			src: url(https://discordapp.com/assets/748ac49ebe4bf0ddfe85c005be7c64c4.woff) format('woff')
+			}
+		
+		body, html {
+			margin: 0;
+			font-weight: 500;
+		}
+		
+		.listItem {
+			height: 32px;
+			overflow: hidden;
+			width: 100%;
+			text-overflow: ellipsis;
+		}
+		#guildList {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 32px;
+			height: -webkit-calc(100% - 1px);
+			z-index: 10;
+			background: rgb(30, 33, 36);
+			overflow-y: auto;
+		}
+		#guildList img {
+			width: 32px;
+			height: 32px;
+		}
+		#messages {
+			position: absolute;
+			top: 24px;
+			left: 32px;
+			max-height: -webkit-calc(100% - 26px);
+			overflow-y: auto;
+		}
+		
+		#channelList {
+			position: absolute;
+			top: 0;
+			left: 32px;
+			height: 24px;
+			width: -webkit-calc(100% - 32px);
+			white-space: nowrap;
+			overflow-x: auto;
+			-webkit-overflow-scrolling: touch;
+			background-color: rgb(30, 33, 36);
+		}
+		.message {
+			margin: 0.5em;
+			line-height: 1.5em;
+		}
+		.emoji {
+			max-height: 1.25em;
+		}
+	</style>
+	<script>
+		function toggleMenu() {
+			menu = document.getElementById('guildList');
+			if(menu.style.display == 'none') {
+				menu.style.display = 'block';
+			} else {
+				menu.style.display = 'none';
+			}
+		}
+	</script>
+</head>
+<body>
+	<div id="guildList"></div>
+
+	<div id="channelList">
+		<span id="title">Discord N3DS</span>
+	</div>
+<!--	<div id="channels">
+		<a onclick="switchChannel('218343399161159680')"><div class="iconListItem">
+			<img class="channelIcon" src="https://cdn.discordapp.com/icons/218353399161159680/919aab1033e9dfeb3e9d12a0ec3cf579.jpg" style="border-radius: 25px;width: 48px; height: 48px">&nbsp;Flipnote Collective Dev
+		</a>
+		<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
+	</div>-->
+	<div id="messages">
+		Discordant
+	</div>
+	
+	
+	<script id="messageTemplate" type="text/x-handlebars-template">
+		<p class="message">{{#with author}}<b>{{username}}:</b>{{/with}} {{{parsedContent}}}</p>
+	</script>
+	<script id="guildListTemplate" type="text/x-handlebars-template">
+		{{#each guilds}}
+		<a href="javascript:void(0)" onclick="switchGuild('{{id}}')">
+			<div class="listItem">
+				<img style="vertical-align:middle" src="https://cdn.discordapp.com/icons/{{id}}/{{icon}}.jpg">
+			</div>
+		</a>
+		{{/each}}
+	</script>
+	<script id="channelListTemplate" type="text/x-handlebars-template">
+		{{#each channels}}
+		<a href="javascript:void(0)" onclick="switchChannel('{{id}}')" class="channel">{{name}}</a>
+		{{/each}}
+	</script>
+	<script id="messagesTemplate" type="text/x-handlebars-template">
+		{{#each guilds}}
+		<div id="guild{{id}}" class="guild" style="display: none">
+			{{#each channels}}
+			<div id="channel{{id}}" class="channel" style="display: none"></div>
+			{{/each}}
+		</div>
+		{{/each}}
+	</script>
+</body>
+</html>
